@@ -1,20 +1,33 @@
-from collections import Counter
-from string import punctuation
-from waitress import serve
+class FreshmanBot:
+    def __init__(self):
+        self.questions = {"расписание": "Расписание можно найти на сайте университета или в личном кабинете студента.",
+                          "баллы": "Информацию о своих баллах можно узнать в личном кабинете студента.",
+                          "стипендия": "Информацию о стипендии можно узнать в деканате вашего факультета.",
+                          "профориентация": "Для профориентации можно обратиться в центр карьеры вашего университета.",
+                          "спорт": "Ваш университет предлагает множество спортивных секций и клубов. Информацию можно найти на сайте университета."}
 
-def get_most_common_word(filename):
-    with open(filename) as f:
-        text = f.read().lower()
-        words = [word.strip(punctuation) for word in text.split()]
-        word_counts = Counter(words)
-        return word_counts.most_common(1)[0][0]
+    def greet(self):
+        return "Привет, я бот-первокурсник. Я здесь, чтобы помочь вам адаптироваться в университете. Если у вас есть какие-либо вопросы, пожалуйста, задайте их мне."
 
-def application(environ, start_response):
-    filename = 'text.txt'
-    most_common_word = get_most_common_word(filename)
-    response_body = f'The most common word in {filename} is "{most_common_word}".'
-    response_headers = [('Content-Type', 'text/html')]
-    start_response('200 OK', response_headers)
-    return [response_body.encode()]
+    def check_question(self, message):
+        for question in self.questions:
+            if question.lower() in message.lower():
+                return self.questions[question]
+        return None
 
-serve(application, host='0.0.0.0', port=8080)
+    def respond(self, message):
+        answer = self.check_question(message)
+        if answer:
+            return answer
+        else:
+            return "Извините, я не понимаю ваш вопрос. Пожалуйста, задайте другой вопрос."
+
+
+bot = FreshmanBot()
+print(bot.greet())
+message = "расписание"
+response = bot.check_question(message)
+if response:
+    print(response)
+else:
+    print("Извините, такого вопроса нет.")
